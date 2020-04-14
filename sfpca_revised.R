@@ -257,7 +257,8 @@ examine_results <- function(prepared_data, model_index, npcs, nknots, sa, Nchain
   ind = 0
   prop_var = NULL
   for(i in 1:dim(W)[1]){
-    for(j in 1:dim(W)[2]){
+   for(j in 1:dim(W)[2]){
+      print(ind)
       ind = ind + 1
       theta_mu_new[,ind] = array(theta_mu[i,j,])
       alpha_old[,,ind] = t(array(alpha[i,j,],dim=c(N, K)))

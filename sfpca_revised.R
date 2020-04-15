@@ -235,8 +235,8 @@ basis_setup_sparse = function(prepared_data, nknots, orth=TRUE, delta=1/10000){
 	return(results_basis)
 }
 
-###examine results from sfpca
-examine_results <- function(prepared_data, model_index, npcs, nknots, sa, Nchains, Nsamples){
+###perform post hoc rotation
+post_hoc_rotation <- function(prepared_data, model_index, npcs, nknots, sa, Nchains, Nsamples){
   Sigma = extract(sa,"Sigma",permuted=FALSE)
   W = extract(sa,"W",permuted=FALSE)
   sigma_eps = extract(sa,"sigma_eps",permuted=FALSE)
@@ -300,7 +300,7 @@ examine_results <- function(prepared_data, model_index, npcs, nknots, sa, Nchain
 
 
 
-rotation <- function(prepared_data, npcs, vars_select, results_list, results_basis){
+output_results <- function(prepared_data, npcs, vars_select, results_list, results_basis){
   ALPHA_array = results_list$alpha_new
   MU_array = results_list$theta_mu_new
   THETA_array = results_list$Theta_new
@@ -389,4 +389,44 @@ rotation <- function(prepared_data, npcs, vars_select, results_list, results_bas
                        Y_sparse = Y_sparse, FPC_mean = FPC_mean)
   return(return_list)
 }
+
+plot_qqplot <- function(response){
+  par(mfrow=c(2,2))
+  qqPlot(response)
+  qqPlot(log(response))
+  qqPlot(sqrt(response))
+  qqPlot(response)
+}
+
+plot_bygroup <- function(df, xaxis, yaxis, unique_id, groupby){
+  ggplot(df, aes(x=xaxis, y=yaxis, group=unique_id, color=groupby)) + 
+    geom_line(alpha=0.2) + 
+    geom_smooth(se=TRUE, size=2, aes(group=groupby, fill=groupby), level=0.95) +
+    xlab('xaxis') + ylab("yaxis") + ggtitle('Gut') + 
+    theme(axis.title.x = element_text(face="bold"),
+          axis.title.y = element_text(face="bold"),
+          legend.position="top") 
+}
+
+plot_k_diagnostic <- function(pkdf, id, pk){
+  ggplot(pkdf, aes(x=id,y=pk)) + geom_point(shape=3, color="blue") +
+    labs(x="Observation left out", y="Pareto shape k") +
+    geom_hline(yintercept = 0.7, linetype=2, color="red", size=0.2) +
+    ggtitle("PSIS-LOO diagnostics") + theme_classic() + 
+    theme(plot.title = element_text(hjust = 0.5, size=15, face="bold"),
+          axis.text.x= element_text(size=10, face="bold"),
+          axis.text.y= element_text(size=10, face="bold"),
+          axis.title.x= element_text(size=12, face="bold"),
+          axis.title.y= element_text(size=12, face="bold")) 
+}
+
+
+plot_mean_curve <- function(time_cont, data, Mu_functions, sigma_y, mu_y, time_sparse, Y_sparse){
+  plot(time_cont*(max(data$Time) - min(data$Time)) + min(data$Time), Mu_functions*sigma_y + mu_y, type="l",ylim=c(-1, 4),
+       xlab='Days of life', ylab='shannon diversity', lwd=5, col=4, font.lab=2, cex.lab=1.2)
+  for(i in 1:N){
+    lines(time_sparse[[i]]*(max(data$Time) - min(data$Time)) + min(data$Time),Y_sparse[[i]]*sigma_y + mu_y,type="l",lwd=.25)
+  }
+}
+
 

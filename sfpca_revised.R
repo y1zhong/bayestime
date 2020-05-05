@@ -236,18 +236,19 @@ basis_setup_sparse = function(prepared_data, nknots, orth=TRUE, delta=1/10000){
 }
 
 ###perform post hoc rotation
-post_hoc_rotation <- function(prepared_data, model_index, npcs, nknots, sa, Nchains, Nsamples){
-  Sigma = extract(sa,"Sigma",permuted=FALSE)
-  W = extract(sa,"W",permuted=FALSE)
-  sigma_eps = extract(sa,"sigma_eps",permuted=FALSE)
-  theta_mu = extract(sa,"theta_mu",permuted=FALSE)
-  alpha = extract(sa,"alpha",permuted=FALSE)
-  Theta = extract(sa,"Theta",permuted=FALSE)
+post_hoc_rotation <- function(sfpca_model, prepared_data, Nchains, Nsamples){
+  sa <- sfpca_model$sa
+  Sigma = rstan::extract(sa,"Sigma",permuted=FALSE)
+  W = rstan::extract(sa,"W",permuted=FALSE)
+  sigma_eps = rstan::extract(sa,"sigma_eps",permuted=FALSE)
+  theta_mu = rstan::extract(sa,"theta_mu",permuted=FALSE)
+  alpha = rstan::extract(sa,"alpha",permuted=FALSE)
+  Theta = rstan::extract(sa,"Theta",permuted=FALSE)
   
   ## Reshape parameters and reorient loadings with PCA rotation 
   N = prepared_data$num_subjects
-  K = npcs
-  Q = nknots + 4
+  K = sfpca_model$pc
+  Q = sfpca_model$knot + 4
   
   theta_mu_new = array(0, dim=c(Q, Nchains*Nsamples/2))
   alpha_old = alpha_new = array(0, dim=c(K, N, Nchains*Nsamples/2)) 
@@ -258,7 +259,7 @@ post_hoc_rotation <- function(prepared_data, model_index, npcs, nknots, sa, Ncha
   prop_var = NULL
   for(i in 1:dim(W)[1]){
    for(j in 1:dim(W)[2]){
-      print(ind)
+      #print(ind)
       ind = ind + 1
       theta_mu_new[,ind] = array(theta_mu[i,j,])
       alpha_old[,,ind] = t(array(alpha[i,j,],dim=c(N, K)))
@@ -292,21 +293,23 @@ post_hoc_rotation <- function(prepared_data, model_index, npcs, nknots, sa, Ncha
   prop_var_avg_origin = colMeans(prop_var)
   (prop_var_avg = paste(round(colMeans(prop_var)*100, 2), '%', sep=''))
   #rename Q
-  li <- list(num_subjects = N, npcs = K, Q = Q, alpha_new = alpha_new, 
+  li <- list(num_subjects = N, npcs = K, nknots = sfpca_model$knot, Q = Q, alpha_new = alpha_new, 
             theta_mu_new = theta_mu_new, Theta_new = Theta_new, prop_var_avg_origin = prop_var_avg_origin, 
             prop_var_avg = prop_var_avg)
   return(li)
 }
 
 
-
-output_results <- function(prepared_data, npcs, vars_select, results_list, results_basis){
-  ALPHA_array = results_list$alpha_new
-  MU_array = results_list$theta_mu_new
-  THETA_array = results_list$Theta_new
+#vars_select: selected variable names will be in the output dataframe result
+output_results <- function(prepared_data, vars_select, results_rotation, results_basis){
+  npcs <- results_rotation$npcs
+  ALPHA_array = results_rotation$alpha_new
+  MU_array = results_rotation$theta_mu_new
+  THETA_array = results_rotation$Theta_new
   phi_t_cont = results_basis$orth_spline_basis_cont
   phi_t = results_basis$orth_spline_basis_sparse
   time_cont = results_basis$time_cont
+  N = prepared_data$num_subjects
   
   nloop=dim(ALPHA_array)[3]
   first=1
@@ -329,12 +332,15 @@ output_results <- function(prepared_data, npcs, vars_select, results_list, resul
   Mu_functions = t(bdiag(cbind(phi_t_cont)))%*%MU_mean
   FPC_mean=t(phi_t_cont)%*%THETA_mean
   
+  vars_complete <- c('ID', 'time', 'response', vars_select)
+  tryCatch({
+    df = prepared_data$data[, vars_complete]
+  }, error=function(e){cat("ERROR :",'Selected variables not in data', "\n")})
+  Y_sparse = list()
+  time_sparse = list()
+  scores = data.frame(t(ALPHA_mean)) 
   if(npcs == 1){
     ### create data frame containing needed information ####
-    df = prepared_data$data[, vars_select]
-    Y_sparse = list()
-    time_sparse = list()
-    scores = data.frame(t(ALPHA_mean)) 
     df$fpc1 = 0 # principle component scores
     
     i = 0
@@ -356,10 +362,6 @@ output_results <- function(prepared_data, npcs, vars_select, results_list, resul
     df$residuals = df$Y_sparse - df$Fits_sparse
   } else {
     ### create data frame containing needed information ####
-    df = prepared_data$data[, vars_select]
-    Y_sparse = list()
-    time_sparse = list()
-    scores = data.frame(t(ALPHA_mean)) 
     for(k in 1:npcs){
       names(scores)[k] = paste('fpc', k, sep = '')
       df[names(scores)[k]] = 0 # principle component scores  # it depends of PCs (better to choose number of PCs as input)
@@ -390,26 +392,40 @@ output_results <- function(prepared_data, npcs, vars_select, results_list, resul
   return(return_list)
 }
 
-plot_qqplot <- function(response){
+plot_qqplot <- function(response, path=NULL){
+  if(!is.null(path)) pdf(path)
   par(mfrow=c(2,2))
-  qqPlot(response)
-  qqPlot(log(response))
-  qqPlot(sqrt(response))
-  qqPlot(response)
+  car::qqPlot(response)
+  car::qqPlot(log(response))
+  car::qqPlot(sqrt(response))
+  car::qqPlot(response)
+  if(!is.null(path)) dev.off()
 }
 
-plot_bygroup <- function(df, xaxis, yaxis, unique_id, groupby){
-  ggplot(df, aes(x=xaxis, y=yaxis, group=unique_id, color=groupby)) + 
-    geom_line(alpha=0.2) + 
-    geom_smooth(se=TRUE, size=2, aes(group=groupby, fill=groupby), level=0.95) +
-    xlab('xaxis') + ylab("yaxis") + ggtitle('Gut') + 
-    theme(axis.title.x = element_text(face="bold"),
-          axis.title.y = element_text(face="bold"),
-          legend.position="top") 
+plot_group <- function(data, time_name, response_name, id_name, group_name, path=NULL){
+  if(!is.null(path)) pdf(path)
+  time <- as.numeric(as.character(data[, time_name]))
+  response <- data[, response_name]
+  unique_id <- data[, id_name]
+  group <- data[, group_name]
+  for(i in 1:length(group_name)){
+    print(ggplot2::ggplot(data, aes(x=time, y=response, group=unique_id, color=group)) + 
+      geom_line(alpha=0.2) + 
+      geom_smooth(se=F, size=2, aes(group=group, fill=group), level=0.95) +
+      xlab(time_name) + ylab(response_name) + ggtitle(group_name) + 
+      theme(axis.title.x = element_text(face="bold"),
+            axis.title.y = element_text(face="bold"),
+            legend.position="top"))
+  }
+  if(!is.null(path)) dev.off()
 }
 
-plot_k_diagnostic <- function(pkdf, id, pk){
-  ggplot(pkdf, aes(x=id,y=pk)) + geom_point(shape=3, color="blue") +
+plot_k_diagnostic <- function(sfpca_model, prepared_data, Nsamples, Nchains, path=NULL){
+  if(!is.null(path)) pdf(path)
+  N = prepared_data$num_subjects
+  loo_best <- sfpca_model$looic
+  pkdf<-data.frame(pk=loo_best$diagnostics$pareto_k, id=1:N)
+  print(ggplot2::ggplot(pkdf, aes(x=id,y=pk)) + geom_point(shape=3, color="blue") +
     labs(x="Observation left out", y="Pareto shape k") +
     geom_hline(yintercept = 0.7, linetype=2, color="red", size=0.2) +
     ggtitle("PSIS-LOO diagnostics") + theme_classic() + 
@@ -417,16 +433,193 @@ plot_k_diagnostic <- function(pkdf, id, pk){
           axis.text.x= element_text(size=10, face="bold"),
           axis.text.y= element_text(size=10, face="bold"),
           axis.title.x= element_text(size=12, face="bold"),
-          axis.title.y= element_text(size=12, face="bold")) 
+          axis.title.y= element_text(size=12, face="bold")) )
+  
+  sa <- sfpca_model$sa
+  Ynew <- rstan::extract(sa, "Ynew", permuted=FALSE)
+  V <- prepared_data$visits.vector
+  Ynew_transform = matrix(rep(0, Nsamples/2 * Nchains * sum(V)), ncol=sum(V))
+  ind = 0
+  for (i in 1:(Nsamples/2)){
+    for (j in 1:Nchains){
+      ind = ind + 1
+      Ynew_transform[ind, ] = Ynew[i,j,]
+    }
+  }
+  Ynew_mean = colMeans(Ynew_transform)
+  bayesplot::color_scheme_set("brightblue")
+  k <- sfpca_model$pc
+  d <- sfpca_model$knot
+  print(bayesplot::ppc_dens_overlay(prepared_data$data$response, Ynew_transform) + ggplot2::ggtitle(paste(k,'pc_',d,'knot')))
+  if(!is.null(path)) dev.off()
+}
+
+plot_residual_analysis <- function(results_list, path=NULL){
+  if(!is.null(path)) pdf(path)
+  df <- results_list$df
+  par(mfrow=c(1,2))
+  plot(df$residuals)
+  car::qqPlot(df$residuals)
+  if(!is.null(path)) dev.off()
+  par(mfrow=c(1,1))
 }
 
 
-plot_mean_curve <- function(time_cont, data, Mu_functions, sigma_y, mu_y, time_sparse, Y_sparse){
-  plot(time_cont*(max(data$Time) - min(data$Time)) + min(data$Time), Mu_functions*sigma_y + mu_y, type="l",ylim=c(-1, 4),
-       xlab='Days of life', ylab='shannon diversity', lwd=5, col=4, font.lab=2, cex.lab=1.2)
+plot_mean_curve <- function(results_basis, results_list, prepared_data, id_name, time_name,
+                            response_name, vars_select, ymin=NULL, ymax=NULL, path=NULL){
+  if(!is.null(path)) pdf(path)
+  #xpar(mfrow=c(1,2))
+  data <- prepared_data$data
+  N = prepared_data$num_subjects
+  data = data[, c(id_name, time_name, response_name, vars_select)]
+  colnames(data) = c('ID_unique', 'Time', 'response', vars_select)
+  sigma_y = sd(log(data$response))
+  mu_y = mean(log(data$response))
+  time_cont <- results_basis$time_cont
+  Y_sparse <- results_list$Y_sparse
+  Mu_functions <- results_list$Mu_functions
+  time_sparse <- results_list$time_sparse
+  
+  if(is.null(ymin) & is.null(ymax)){
+    ymin <- floor(min(unlist(Y_sparse)*sigma_y+ mu_y, min(Mu_functions*sigma_y + mu_y))) - 0.1
+    ymax <- ceiling(max(unlist(Y_sparse)*sigma_y+ mu_y, max(Mu_functions*sigma_y + mu_y))) + 0.1
+  }
+  plot(time_cont*(max(data$Time) - min(data$Time)) + min(data$Time), Mu_functions*sigma_y + mu_y, type="l",ylim=c(ymin, ymax),
+     xlab='Days of life', ylab='shannon diversity', lwd=5, col=4, font.lab=2, cex.lab=1.2)
   for(i in 1:N){
     lines(time_sparse[[i]]*(max(data$Time) - min(data$Time)) + min(data$Time),Y_sparse[[i]]*sigma_y + mu_y,type="l",lwd=.25)
   }
+  if(!is.null(path)) dev.off()
 }
 
+#get variable names that not change with differnet timepoint
+get_invariants <- function(data, var_names, id_name, time_name, var_exclude=NULL){
+  if(!is.null(var_exclude)) data <- data[, -var_exclude]
+  
+  var_invariant <- c()
+  for(i in 1:length(var_names)){
+    var_temp <- var_names[i]
+    
+    #skip variables with only 1 value
+    if(length(unique(data[,var_temp])) == 1) next
+    
+    #get wide format data
+    data_temp <- data[,c(id_name, time_name, var_temp)]
+    data_wide <- tidyr::spread(data_temp, time_name, var_temp)
+    #count number of subject with same value
+    count <- 0
+    for(k in 1:nrow(data_wide)){
+      vec_temp <- na.omit(unlist(data_wide[k, ])[-1])
+      count <- ifelse(length(unique(vec_temp)) == 1, count+1, count)
+    }
+    if(count == nrow(data_wide)) var_invariant <- c(var_invariant, var_temp)
+  } 
+  #change variables to factor type
+  data[, var_invariant] <- lapply(data[, var_invariant], as.factor)
+  data_invar <- data[, var_invariant]
+  if(id_name %in% colnames(data_invar)) {
+    data_invar <- data_invar[, !colnames(data_invar) %in% id_name]
+  }
+  return(colnames(data_invar))
+}
+
+sfpcaClass <- function(pc=NULL, knot=NULL, sa=NULL, log_lik=NULL, looic=NULL){
+  sfpca_stan <- list(
+    pc = pc,
+    knot = knot,
+    sa = sa,
+    log_lik = log_lik,
+    looic = looic
+  )
+  
+  ## Set the name for the class
+  class(sfpca_stan) <- append(class(sfpca_stan),"sfpcaClass")
+  return(sfpca_stan)
+}
+
+sfpca_stan <- function(PC_max, D_max, Nsamples, Nchain, smod, data){
+  sfpca_results <- list()
+  i = 0
+  for (k in 1:PC_max){
+    for (d in 1:D_max){
+      i = i + 1
+      sfpca <- sfpcaClass()
+      sfpca$pc <- k
+      sfpca$knot <- d
+      print(paste('index i is:', i, 'number of PC:', k, 'number of knots:', d))
+      results_basis = basis_setup_sparse(prepared_data=data, nknots=d, orth=TRUE)
+      pca_data <- list(N = data$num_subjects, K = k, Q = d + 4, Y = data$response.list,
+                       V = data$visits.vector, subject_starts = data$visits.start,
+                       subject_stops = data$visits.stop, cov_starts = data$cov.start,
+                       cov_stops = data$cov.stop, cov_size = data$cov.size,
+                       B = results_basis$orth_spline_basis_sparse_stacked)
+      
+      set.seed(31)
+      sa = rstan::sampling(smod, data= pca_data, iter=Nsamples, chains=Nchains, init="random")
+      sfpca$sa = sa
+      sfpca$log_lik <- rstan::extract(sa,"log_lik_marg")[[1]]
+      sfpca$looic = loo::loo(sfpca$log_lik)
+      sfpca_results[[i]] <- sfpca
+      print("######### SFPCA on shannon Gut ###############")
+    }
+  }
+  return(sfpca_results)
+}
+
+#compare sfpca models and return the best model
+get_optimal_model <- function(sfpca_results){
+  len <- length(sfpca_results)
+  looic.list <- lapply(1:len, function(i){
+    sfpca_results[[i]]$looic
+  })
+  looic.obj <- loo::loo_compare(looic.list)
+  print(looic.obj)
+  model.name <- rownames(looic.obj)[1]
+  model.index <- as.numeric(gsub(".*?([0-9]+).*", "\\1", model.name))
+  return(sfpca_results[[model.index]])
+}  
+
+
+sfpca_rda <- function(results_list, sfpca_model, vars_select, id.name, path=NULL){
+  df <- results_list$df
+  df <- df[complete.cases(df), ]
+  
+  if(id.name %in% vars_select){
+    vars_select <- vars_select[!vars_select %in% id.name]
+  }
+  dat <- df[c(vars_select)]
+
+  pc.names <- numeric(sfpca_model$pc)
+  pc.names <- sapply(1:sfpca_model$pc, function(i){
+    paste('fpc', i, sep = '')
+  })
+  pc = df[, pc.names]
+  
+  mod0 <- vegan::rda(pc ~ 1., dat)  # Model with intercept only
+  mod1 <- vegan::rda(pc ~ ., dat)  # Model with all explanatory variables
+  set.seed(111)
+  step.res <- vegan::ordiR2step(mod0, mod1, perm.max = 1000)
+  
+  #add effect-size
+  table = step.res$anova
+  if(is.null(table)) return(print('no non-redundant variable'))
+  table.row <- nrow(table)
+  R2.adj <- c(table$R2.adj[1])
+  for (i in 1:(table.row-1)){
+    R2.adj <- c(R2.adj, table$R2.adj[i+1]-table$R2.adj[i])
+  }
+  table$ES.RDA <- R2.adj
+  table = table[-table.row, ]
+  print(step.res$call)
+  covariates <- rownames(table)
+  print(ggplot2::ggplot(table, aes(x=reorder(covariates, ES.RDA), y=ES.RDA, fill=covariates)) +
+    labs(x = 'Non-redundant Covariants', y = 'Effect Size') +
+    geom_bar(stat='identity') +
+    theme(axis.text=element_text(size=10), 
+          axis.title=element_text(size=14,face="bold"), 
+          legend.position="none") + 
+    coord_flip())
+  if(!is.null(path)) ggsave(path)
+  return(table)
+}
 

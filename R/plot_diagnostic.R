@@ -6,7 +6,7 @@
 #' @import rstan
 #' @import bayesplot
 
-sfpca_plot_diagnostic <- function(sfpca_data, sfpca_model){
+plot_diagnostic <- function(sfpca_data, sfpca_model){
   N <- sfpca_data$num_subjects
   loo_best <- sfpca_model$looic
   pkdf <- data.frame(pk = loo_best$diagnostics$pareto_k, id = 1:N)

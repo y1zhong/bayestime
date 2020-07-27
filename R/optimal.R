@@ -2,7 +2,7 @@
 #'
 #' @param model_list: A list of sfpca models with different parameters
 #' @return One sfpca model with the optimal result
-sfpca_optimal <- function(model_list){
+optimal <- function(model_list){
   len <- length(model_list)
   looic.list <- lapply(1:len, function(i) model_list[[i]]$looic)
   looic.obj <- loo::loo_compare(looic.list)

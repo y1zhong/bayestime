@@ -43,12 +43,12 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
 
   # transform response (code updated on 08/16/2019)
   if (transform_y == 'standardize'){
-    data$response_name <- (data[, response_name] - mean(data[, response_name], na.rm=T)) /
+    data$response <- (data[, response_name] - mean(data[, response_name], na.rm=T)) /
       (sd(data[, response_name], na.rm=T))
   } else if (transform_y == 'center'){
-    data$response_name <- (data[, response_name] - mean(data[, response_name], na.rm=T))
+    data$response <- (data[, response_name] - mean(data[, response_name], na.rm=T))
   } else {
-    data$response_name <- data[, response_name]
+    data$response <- data[, response_name]
   }
 
 

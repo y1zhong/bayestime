@@ -33,7 +33,7 @@ sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
 #' @importFrom rstan sampling
 #' @useDynLib BayesTime, .registration = TRUE
 
-sfpca_stan <- function(sfpca_data, Nsamples, Nchains, PC_max, D_max){
+sfpca_fit <- function(sfpca_data, Nsamples, Nchains, PC_max, D_max){
   sfpca_results <- list()
   i <- 0
   for (k in 1:PC_max) {

@@ -8,6 +8,7 @@
 #' @param scale_time the option of whether or not to scale the time variable to be within [0, 1] (True/False)
 #' @param group_name the column name of group id, set to NA if no input
 #' @return A list containing the prepared data for sfpca model
+#' @import data.table
 #' @export
 #' @examples
 #' data("ECAM")
@@ -15,7 +16,7 @@
 #' dat <- prepare_data(ECAM, unique_subject_id = 'studyid', time_name = 'month_of_life',
 #'                    response_name = 'shannon', transform_y='standardize', scale_time=T)
 prepare_data = function(data, unique_subject_id, time_name, response_name,
-                        transform_y='standardize', scale_time=FALSE, group_name = NULL){
+                        transform_y = 'standardize', scale_time = FALSE, group_name = NULL){
 
   if (!(unique_subject_id %in% colnames(data)) |
       !(time_name %in% colnames(data)) |
@@ -23,8 +24,10 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
 
   # check if each subject has unique measurement at each time point
   data_check <- data[, c(as.character(unique_subject_id), as.character(time_name))]
-  if (sum(duplicated(data_check)) != 0) stop("Some subject has duplicate
-                                             measurements at the same timepoint.")
+  if (sum(duplicated(data_check)) != 0) {
+    dupli_ids <- unique(data_check[, unique_subject_id])
+    stop(paste('Subject', paste(dupli_ids, sep = ',', collapse = ','), 'has duplicate measurements.', by= ' '))
+  }
 
   # create new ID
   data$ID <- as.character(data[, unique_subject_id])

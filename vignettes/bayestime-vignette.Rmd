@@ -61,7 +61,7 @@ invars
 BayesTime::plot_group() generates the spaghetti plot of interested variables by group. This takes the logitudinal data frame, the column name of time variable, column name of response variable, column name of unique subject id and a vector of column names of interested variables.
 ```{r}
 plot_group(data = ECAM, time_name = 'month_of_life', response_name = 'shannon',
-           unique_subject_id = 'studyid', group_name = invars)
+           unique_subject_id = 'studyid', group_name = invars[1])
 ```
 
 ## stan_fit(): Get invariant variables in data
@@ -71,7 +71,8 @@ BayesTime::stan_fit() is the core function to fit longitudinal data. This takes 
 ```{r}
 #sfpca_stan_results <- stan_fit(data = dat, Nsamples = 1000, Nchain = 3,
 #                         PC_max = 3, D_max = 3)
-load('~/Dropbox/lab/SFPCA/results_pkg/stan.RData')
+#save(sfpca_stan_results, file='~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
+load('~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
 ```
 
 ## optimal(): Get the optimal model
@@ -139,3 +140,7 @@ plot_fpc_boxplot(output = model_output, group_name = invars)
 ```
 
 ## plot_fpc_curve(): 
+```{r}
+plot_fpc_curve(data = ECAM, response_name = 'shannon', basis = model_basis, 
+               output = model_output, rotation = model_rotation)
+```

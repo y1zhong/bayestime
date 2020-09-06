@@ -20,12 +20,11 @@ sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
 
 #' generate sfpca models with different parameters
 #'
-#' @param PC_max: Number of the maximum principal component
-#' @param D_max: Number of the maximum knot
+#' @param da_list: The prepared data list from prepare_data() function
 #' @param Nsamples: Number of objects sampling from rstan
 #' @param Nchains: Number of Markov chain using in rstan model
-#' @param smod: Stan model constructed from source file (rstan)
-#' @param sfpca_data: The prepared data list from prepare_data() function
+#' @param PC_max: Number of the maximum principal component
+#' @param D_max: Number of the maximum knot
 #' @return A list of sfpca classes with difference pc and knot numbers
 #' @import loo
 #' @import Rcpp
@@ -34,7 +33,7 @@ sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
 #' @useDynLib BayesTime, .registration = TRUE
 #' @export
 
-stan_fit <- function(data, Nsamples, Nchains, PC_max, D_max){
+stan_fit <- function(da_list, Nsamples, Nchains, PC_max, D_max){
   sfpca_results <- list()
   i <- 0
   for (k in 1:PC_max) {
@@ -44,18 +43,18 @@ stan_fit <- function(data, Nsamples, Nchains, PC_max, D_max){
       sfpca$pc <- k
       sfpca$knot <- d
       print(paste('index i is:', i, 'number of PC:', k, 'number of knots:', d))
-      results_basis <- basis_setup_sparse(sfpca_data = data,
+      results_basis <- basis_setup_sparse(sfpca_data = da_list,
                                           nknots = d, orth = TRUE)
-      pca_data <- list(N = data$num_subjects,
+      pca_data <- list(N = da_list$num_subjects,
                        K = k,
                        Q = d + 4,
-                       Y = data$response.list,
-                       V = data$visits.vector,
-                       subject_starts = data$visits.start,
-                       subject_stops = data$visits.stop,
-                       cov_starts = data$cov.start,
-                       cov_stops = data$cov.stop,
-                       cov_size = data$cov.size,
+                       Y = da_list$response.list,
+                       V = da_list$visits.vector,
+                       subject_starts = da_list$visits.start,
+                       subject_stops = da_list$visits.stop,
+                       cov_starts = da_list$cov.start,
+                       cov_stops = da_list$cov.stop,
+                       cov_size = da_list$cov.size,
                        B = results_basis$orth_spline_basis_sparse_stacked)
 
       set.seed(31)

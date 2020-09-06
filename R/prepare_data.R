@@ -8,7 +8,6 @@
 #' @param scale_time the option of whether or not to scale the time variable to be within [0, 1] (True/False)
 #' @param group_name the column name of group id, set to NA if no input
 #' @return A list containing the prepared data for sfpca model
-#' @import data.table
 #' @export
 #' @examples
 #' data("ECAM")
@@ -42,7 +41,9 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
   }
 
   # create time
+  # keep original time
   if (scale_time == TRUE){
+    data$time_ori <- data[, time_name]
     data$time <- (data[, time_name] - min(data[, time_name])) / (max(data[, time_name]) - min(data[, time_name]))
   } else{
     data$time <- data[, time_name]
@@ -51,10 +52,13 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
   T_len <- length(unique(data$time)) # total number of sampling time points
 
   # transform response (code updated on 08/16/2019)
+  # keep original response
   if (transform_y == 'standardize'){
+    data$response_ori <- data[, response_name]
     data$response <- (data[, response_name] - mean(data[, response_name], na.rm=T)) /
       (sd(data[, response_name], na.rm=T))
   } else if (transform_y == 'center'){
+    data$response_ori <- data[, response_name]
     data$response <- (data[, response_name] - mean(data[, response_name], na.rm=T))
   } else {
     data$response <- data[, response_name]
@@ -108,10 +112,10 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
   cov.start <- c(1, cov.stop[-N] + 1)
   cov.size <- sum(visits.vector ^ 2)
 
-  sfpca_data = list(data=data, num_subjects=N, num_times=T_len,
+  da_list = list(data=data, num_subjects=N, num_times=T_len,
                     response.list=response.list, time.matrix=time.matrix,
                     visits.vector=visits.vector, visits.start=visits.start,
                     visits.stop=visits.stop, cov.start=cov.start, cov.stop=cov.stop,
                     cov.size=cov.size, id_group=id_group)
-  return(sfpca_data)
+  return(da_list)
 }

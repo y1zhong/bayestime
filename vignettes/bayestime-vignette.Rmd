@@ -70,9 +70,9 @@ BayesTime::stan_fit() is the core function to fit longitudinal data. This takes 
 * This process may take a lot of time even if the pc and knot number are small. We recommend to save the stan modeling results to save time.
 
 ```{r}
-#stan_results <- stan_fit(da.list = dat, Nsamples = 1000, Nchain = 3,
-#                         PC_max = 3, D_max = 3)
-#save(stan_results, file='~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
+stan_results <- stan_fit(da_list = dat, Nsamples = 1000, Nchain = 3,
+                         PC_max = 3, D_max = 3)
+save(stan_results, file='~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
 load('~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
 ```
 
@@ -132,10 +132,15 @@ plot_mean_curve(output = model_output, ymin=NULL, ymax=NULL)
 plot_fpc_curve(output = model_output)
 ```
 
+## plot_fpc_group_mean():
+```{r}
+
+```
+
 ## plot_fpc_boxplot(): Generate boxplot for fpc score by group
 BayesTime::plot_fpc_boxplot() generates the boxplot of fpc scores from sfpca model and compare them by group. This function takes the output list from output_results() and the vector of variables that are invariant with time.
 ```{r}
-plot_fpc_boxplot(output = model_output, group_name = invars)
+plot_fpc_boxplot(output = model_output, group_name = 'diet_3')
 ```
 
 

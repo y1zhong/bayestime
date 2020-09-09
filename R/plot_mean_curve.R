@@ -31,7 +31,7 @@ plot_mean_curve <- function(output, ymin=NULL, ymax=NULL){
                         Mu_functions * sigma_y + mu_y)) + 0.1
   }
   plot(time_cont * (max(time) - min(time)) + min(time),
-       Mu_functions * sigma_y + mu_y, type = "l",ylim = c(ymin, ymax),
+       Mu_functions * sigma_y + mu_y, type = "l", ylim = c(ymin, ymax),
        xlab = 'time', ylab = 'response',
        lwd = 5, col = 4, font.lab = 2, cex.lab = 1.2)
   for (i in 1:N) {

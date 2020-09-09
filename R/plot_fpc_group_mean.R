@@ -7,29 +7,51 @@ plot_fpc_group_mean <- function(output, group_name){
   data <- output$df
   K <- output$rotation$npcs
 
-  fpcs <- c()
-  for (k in 1:K){
-    fpcs <- c(fpcs, paste('fpc', k, sep = ''))
-    data_temp <- data[, c('ID', 'delivery', 'fpc1')]
-    classes <- factor(data_temp$delivery)
-    data_wide <- data_temp[data_temp[, 'delivery'] == classes[1], ]
+  if ('time_ori' %in% colnames(data) & 'response_ori' %in% colnames(data)){
+    response <- data$response_ori
+    time <- data$time_ori
+  } else {
+    response <- data$response
+    time <- data$time
   }
-  ## effect of mean of two groups
-  for (k in 1:K){
-    #pdf(paste(paste('shannon_sfpca/FPCs_mean_PC_GroupMean_shannon_fecal', k, sep=''), 'pdf', sep='.'), width=5, height=5)
-    scores_mu_g1 = mean(df[df$birth_mode_ms %in% 'CS', paste('fpc', k, sep='')])
-    scores_mu_g2 = mean(df[df$birth_mode_ms %in% 'CSseed', paste('fpc', k, sep='')])
-    scores_mu_g3 = mean(df[df$birth_mode_ms %in% 'Vag', paste('fpc', k, sep='')])
-    plot(time_cont*max(dat$Time), Mu_functions*sigma_y + mu_y, type="n",
-         lwd=2,col=1, xlab='Time', ylab='shannon', font.lab=2, cex.lab=1.2, ylim=c(1.7,3.5))
 
-    lines(time_cont*max(dat$Time), (Mu_functions + FPC_mean[,k]*scores_mu_g1)*sigma_y + mu_y,type="l",lwd=3,lty=2,col=2) # red
-    lines(time_cont*max(dat$Time), (Mu_functions + FPC_mean[,k]*scores_mu_g2)*sigma_y + mu_y,type="l",lwd=3,lty=2,col=3) # green
-    lines(time_cont*max(dat$Time), (Mu_functions + FPC_mean[,k]*scores_mu_g3)*sigma_y + mu_y,type="l",lwd=3,lty=2,col=4) #
+  sigma_y <- sd(log(response))
+  mu_y <- mean(log(response))
+  time_cont <- output$basis$time_cont
+  Y_sparse <- output$Y_sparse
+  Mu_functions <- output$Mu_functions
+  time_sparse <- output$time_sparse
+  FPC_mean <- output$FPC_mean
+  prop_var_avg <- output$rotation$prop_var_avg
+
+  ymin <- floor(min(unlist(Y_sparse) * sigma_y + mu_y,
+                    Mu_functions * sigma_y + mu_y)) - 0.1
+  ymax <- ceiling(max(unlist(Y_sparse) * sigma_y + mu_y,
+                      Mu_functions * sigma_y + mu_y)) + 0.1
+
+  for (k in 1:K){
+    fpcs <- paste('fpc', k, sep = '')
+    data_temp <- data[, c('ID', group_name, fpcs)]
+    classes <- levels(data_temp[, group_name])
+    groups <- length(classes)
+    scores_mu_g <- numeric(groups)
+    for (j in 1:groups){
+
+    }
+
+    plot(time_cont * max(time), Mu_functions * sigma_y + mu_y, type="n",
+         lwd = 2, xlab='Time', ylab='Response', font.lab = 2, cex.lab = 1.2,
+         ylim = c(ymin, ymax))
+
+    for (j in 1:groups){
+      scores_mu_g_temp = mean(data_temp[data_temp[, group_name] == classes[j], fpcs])
+      lines(time_cont * max(time),
+            (Mu_functions + FPC_mean[, k] * scores_mu_g_temp) * sigma_y + mu_y,
+            type = "l", lwd = 3, lty = 2, col = j+1)
+    }
+
     title(main=paste(paste('PC', k, sep=' '), ' (', prop_var_avg[k], ' )', sep=''))
-    #axis(1, font=2) # make x-axis ticks label bold
-    legend('bottomright', c('CS', 'CSseed', 'Vaginal'), lty=c(2,2,2), lwd=c(3,3,3), col=c(2,3,4), bty='n', cex=0.5)
-    #dev.off()
+    legend('bottomright', classes, lty = rep(2, groups), lwd = rep(3, groups),
+           col = seq(2, groups + 1), bty='n', cex=0.5)
   }
-
 }

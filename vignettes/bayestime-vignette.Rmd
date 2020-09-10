@@ -16,8 +16,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, include = FALSE}
-library(devtools)
-install_github('y1zhong/bayestime')
+#library(devtools)
+#install_github('y1zhong/bayestime')
 devtools::load_all('.')
 library(BayesTime)
 ```
@@ -47,7 +47,7 @@ We can see that the original response vairable is more normally distributed than
 
 ## plot_group(): Generate spaghetti plots by group
 BayesTime::plot_group() generates the spaghetti plot of one interested variable by group. This takes the logitudinal data frame, the column name of time variable, column name of response variable, column name of unique subject id and one column name from interested variables.
-```{r}
+```{r, fig.height = 4, fig.width=6}
 plot_group(data = ECAM, time_name = time, response_name = response,
            unique_subject_id = unique_subject_id, variable_name = 'delivery')
 ```
@@ -84,13 +84,13 @@ summary(optimal_model)
 
 ## plot_k_diagnostic(): Plot diagnostic figure
 BayesTime::plot_k_diagnostic() takes data list from prepare_data() and the optimal stan model. This helps to evaluate the fitting result.***
-```{r, fig.height = 4, fig.width=8}
+```{r, fig.height = 4, fig.width=6}
 plot_k_diagnostic(da_list = dat, model = optimal_model)
 ```
 
 ## plot_posterior_diagnostic(): Plot the figure of overlay densities
 BayesTime::plot_density_overlay() takes data list from prepare_data() and the optimal stan model. This helps to evaluate the fitting result.***
-```{r, fig.height = 4, fig.width=8}
+```{r, fig.height = 4, fig.width=6}
 plot_posterior_diagnostic(da_list = dat, model = optimal_model)
 ```
 
@@ -121,7 +121,7 @@ BayesTime::plot_residual() takes the output from output_results() and generates 
 ```
 
 ## plot_mean_curve(): ***
-```{r}
+```{r, fig.height = 4, fig.width=6}
 plot_mean_curve(output = model_output, ymin=NULL, ymax=NULL)
 ```
 
@@ -150,8 +150,8 @@ invars
 ```
 
 ## effectSize_rda(): RDA analysis by fpc scores
-BayesTime::sfpca_rda() automates the rda analysis using rda() from vegan package. This takes the output list from output_results(), stan model from optimal(), and a set of variables self-input or from invariants(). It returns the table and ggplot of the rda analysis results.
+BayesTime::effectSize_rda() automates the rda analysis using rda() from vegan package. This takes the output list from output_results(), stan model from optimal(), and a set of variables self-input or from invariants(). It returns the table and ggplot of the rda analysis results.
 ```{r, results=FALSE, fig.height = 4, fig.width=4}
-model_rda <- sfpca_rda(model_output, optimal_model, invars)
+model_rda <- effectSize_rda(model_output, optimal_model, invars)
 model_rda
 ```

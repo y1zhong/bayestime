@@ -21,7 +21,7 @@ plot_fpc_boxplot <- function(output, group_name){
   df_tt <- df_temp %>%
     group_by(ID) %>%
     filter(row_number()==1)
-  var_tp <- group_name[i]
+  var_tp <- group_name
   colnames(df_tt)[3] <- var_tp
   print(ggboxplot(df_tt, x = var_tp, y = "fpc", color=var_tp, add = "jitter") +
     stat_compare_means(method=meth))

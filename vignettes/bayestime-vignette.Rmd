@@ -40,7 +40,7 @@ response <- 'shannon'
 ## plot_qqplot(): Check if data is normally distributed
 Since model fitting requires a normally distributed variable, we first need to check if the response variable needs any transformation. BayesTime::plot_qqplot() takes a dataframe and a column name of response variable to generate qqPlot of the original, log transformation, and square root of the response variable. 
 ```{r, fig.height = 6, fig.width=6, results=FALSE}
-plot_qqplot(ECAM, response)
+plot_qqplot(ECAM, 'shannon')
 ```
 
 We can see that the original response vairable is more normally distributed than other transformation. So we keep the data as it is, otherwise the variable needs to be transformed.
@@ -63,7 +63,6 @@ dat <- prepare_data(data = ECAM, unique_subject_id = unique_subject_id, time_nam
                     response_name = response, transform_y = 'standardize', scale_time = T)
 summary(dat)
 ```
-
 
 ## stan_fit(): Get invariant variables in data
 BayesTime::stan_fit() is the core function to fit longitudinal data. This takes the list of data from prepare_data(), number of samples and chains in stan modelling, and the number of PC and knot. stan_fit() will loop through each pc and knot number and return a list of stan models with respective pc and knot. ***(more explanation)
@@ -94,7 +93,6 @@ BayesTime::plot_density_overlay() takes data list from prepare_data() and the op
 ```{r, fig.height = 4, fig.width=8}
 plot_posterior_diagnostic(da_list = dat, model = optimal_model)
 ```
-
 
 
 ## basis_setup_sparse(): ***
@@ -142,8 +140,6 @@ BayesTime::plot_fpc_boxplot() generates the boxplot of fpc scores from sfpca mod
 ```{r}
 plot_fpc_boxplot(output = model_output, group_name = 'diet_3')
 ```
-
-
 
 
 ##  invariants(): Get invariant variables in data

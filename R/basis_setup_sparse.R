@@ -14,7 +14,6 @@ basis_setup_sparse = function(da_list, nknots, orth=TRUE, delta = 1/10000){
   num_times <- da_list$num_times
   S <- da_list$time.matrix
   V <- da_list$visits.vector
-
   # continuous time interval
   time_unique <- sort(unique(time_var))
   time_min <- min(time_unique)

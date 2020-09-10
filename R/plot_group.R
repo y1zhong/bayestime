@@ -29,5 +29,4 @@ plot_group <- function(data, time_name, response_name, unique_subject_id, variab
           theme(axis.title.x = element_text(face = "bold"),
                 axis.title.y = element_text(face = "bold"),
                 legend.position = "top"))
-
 }

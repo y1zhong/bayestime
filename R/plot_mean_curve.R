@@ -30,6 +30,7 @@ plot_mean_curve <- function(output, ymin=NULL, ymax=NULL){
     ymax <- ceiling(max(unlist(Y_sparse) * sigma_y + mu_y,
                         Mu_functions * sigma_y + mu_y)) + 0.1
   }
+
   plot(time_cont * (max(time) - min(time)) + min(time),
        Mu_functions * sigma_y + mu_y, type = "l", ylim = c(ymin, ymax),
        xlab = 'time', ylab = 'response',

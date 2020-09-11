@@ -52,15 +52,17 @@ plot_fpc_group_mean <- function(output, pc_idx, original = FALSE, group_name,
   groups <- length(classes)
   scores_mu_g <- numeric(groups)
 
-  plot(time_cont * max(time), Mu_functions * sigma_y + mu_y, type="n",
-       lwd = 2, xlab='Time', ylab='FPC Scores', font.lab = 2, cex.lab = 1.2,
+  plot(time_cont * max(time), Mu_functions * sigma_y + mu_y,
+       type="n", lwd = 2,
+       xlab='Time', ylab='FPC Scores',
+       font.lab = 2, cex.lab = 1.2,
        ylim = c(ymin, ymax))
 
   for (j in 1:groups){
     scores_mu_g_temp = mean(data_temp[data_temp[, group_name] == classes[j], fpcs])
     lines(time_cont * max(time),
           (Mu_functions + FPC_mean[, k] * scores_mu_g_temp) * sigma_y + mu_y,
-          type = "l", lwd = 3, lty = 1, col = j+1)
+          type = "l", lwd = 3, lty = 1, col = j + 1)
   }
 
   title(main = paste(paste('PC', k, sep = ' '), ' (', prop_var_avg[k], ' )', sep=''))

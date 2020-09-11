@@ -72,7 +72,7 @@ BayesTime::stan_fit() is the core function to fit longitudinal data. This takes 
 stan_results <- stan_fit(sfpca_data = dat, Nsamples = 1000, Nchain = 3,
                         Ncores=2, PC_range = c(2,3), nknot_range = c(2,3))
 #save(stan_results, file='~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
-#load('~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
+load('~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
 ```
 
 ## optimal(): Get the optimal model
@@ -133,7 +133,7 @@ plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), ymin = -3, ymax = 5)
 
 ## plot_fpc_on_mean_curve(): 
 ```{r}
-plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = F)
+plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T)
 ```
 
 ## plot_fpc_group_mean():
@@ -144,7 +144,7 @@ plot_fpc_group_mean(model_output, pc_idx = 1, original = F, 'delivery')
 ## plot_fpc_boxplot(): Generate boxplot for fpc score by group
 BayesTime::plot_fpc_boxplot() generates the boxplot of fpc scores from sfpca model and compare them by group. This function takes the output list from output_results() and the vector of variables that are invariant with time.
 ```{r}
-plot_fpc_boxplot(output = model_output, group_name = 'diet_3')
+plot_fpc_boxplot(output = model_output, pc_idx = 2, group_name = 'diet_3')
 ```
 
 

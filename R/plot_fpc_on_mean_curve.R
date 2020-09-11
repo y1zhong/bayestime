@@ -5,8 +5,8 @@
 #' @param pc_idx The pc index to plot with
 #' @param original The option to plot with original or transformed
 #' time and response value
-#' @param ymin
-#' @param ymax
+#' @param ymin The minimum of y lab
+#' @param ymax The maximum of y lab
 #' @export
 plot_fpc_on_mean_curve <- function(output, pc_idx, original = FALSE,
                                    ymin=NULL, ymax=NULL){
@@ -39,9 +39,10 @@ plot_fpc_on_mean_curve <- function(output, pc_idx, original = FALSE,
   prop_var_avg <- output$rotation$prop_var_avg
   k <- pc_idx
 
-  if (is.null(ymin) & is.null(ymax)) {
+  if (is.null(ymin)) {
     ymin <- floor(min((Mu_functions + FPC_mean[, k]) * sigma_y + mu_y,
-                    (Mu_functions - FPC_mean[, k]) * sigma_y + mu_y)) - 0.5
+                    (Mu_functions - FPC_mean[, k]) * sigma_y + mu_y)) - 0.5 }
+  if (is.null(ymax)) {
     ymax <- ceiling(max((Mu_functions + FPC_mean[, k]) * sigma_y + mu_y,
                       (Mu_functions - FPC_mean[, k]) * sigma_y + mu_y)) + 0.5
   }

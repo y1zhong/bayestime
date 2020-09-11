@@ -128,7 +128,7 @@ plot_mean_curve(output = model_output, original = T, xlab = 'age', ylab = 'shann
 
 ## plot_fpc_curve(): 
 ```{r}
-plot_fpc_curve(output = model_output, pc_idx = c(1,2,3))
+plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), ymin = -3, ymax = 5)
 ```
 
 ## plot_fpc_on_mean_curve(): 

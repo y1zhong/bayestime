@@ -11,10 +11,8 @@ plot_fpc_curve <- function(output, pc_idx, ymin = NULL, ymax = NULL){
   K <- length(pc_idx)
   pc_names <- unlist(lapply(pc_idx, function(x) paste('PC', x, sep = '')))
 
-  if (is.null(ymin) & is.null(ymax)) {
-    ymin <- floor(min((FPC_mean))) - 0.5
-    ymax <- ceiling(max((FPC_mean))) + 0.5
-  }
+  if (is.null(ymin)) ymin <- floor(min((FPC_mean))) - 0.5
+  if (is.null(ymax)) ymax <- ceiling(max((FPC_mean))) + 0.5
 
   plot(time_cont, FPC_mean[, 1], type="n", ylim = c(ymin, ymax),
        xlab = 'time', ylab='FPC Scores', font.lab = 2, cex.lab = 1.2)

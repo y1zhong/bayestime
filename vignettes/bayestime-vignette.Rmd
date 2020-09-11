@@ -69,7 +69,7 @@ BayesTime::stan_fit() is the core function to fit longitudinal data. This takes 
 * This process may take a lot of time even if the pc and knot number are small. We recommend to save the stan modeling results to save time.
 
 ```{r}
-stan_results <- stan_fit(da_list = dat, Nsamples = 1000, Nchain = 3,
+stan_results <- stan_fit(sfpca_data = dat, Nsamples = 1000, Nchain = 3,
                         Ncores=2, PC_range = c(2,3), nknot_range = c(2,3))
 #save(stan_results, file='~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
 #load('~/Dropbox/lab/SFPCA/results_pkg/stan_ECAM.RData')
@@ -86,13 +86,13 @@ optimal_model <- stan_results[[4]]
 ## plot_k_diagnostic(): Plot diagnostic figure
 BayesTime::plot_k_diagnostic() takes data list from prepare_data() and the optimal stan model. This helps to evaluate the fitting result.***
 ```{r, fig.height = 4, fig.width=6}
-plot_k_diagnostic(da_list = dat, model = optimal_model)
+plot_k_diagnostic(sfpca_data = dat, model = optimal_model)
 ```
 
 ## plot_posterior_diagnostic(): Plot the figure of overlay densities
 BayesTime::plot_density_overlay() takes data list from prepare_data() and the optimal stan model. This helps to evaluate the fitting result.***
 ```{r, fig.height = 4, fig.width=6}
-plot_posterior_diagnostic(da_list = dat, model = optimal_model)
+plot_posterior_diagnostic(sfpca_data = dat, model = optimal_model)
 ```
 
 
@@ -110,7 +110,7 @@ plot_posterior_diagnostic(da_list = dat, model = optimal_model)
 
 ## output_results(): ***
 ```{r}
-model_output <- output_results(da_list = dat, model = optimal_model)
+model_output <- output_results(sfpca_data = dat, model = optimal_model)
 summary(model_output)
 ```
 
@@ -128,7 +128,7 @@ plot_mean_curve(output = model_output, original = T, ymin=NULL, ymax=NULL)
 
 ## plot_fpc_curve(): 
 ```{r}
-plot_fpc_curve(output = model_output, pc_idx = 2)
+plot_fpc_curve(output = model_output, pc_idx = c(1,2,3))
 ```
 
 ## plot_fpc_on_mean_curve(): 

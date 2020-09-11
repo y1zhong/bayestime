@@ -123,7 +123,7 @@ BayesTime::plot_residual() takes the output from output_results() and generates 
 
 ## plot_mean_curve(): ***
 ```{r, fig.height = 4, fig.width=6}
-plot_mean_curve(output = model_output, original = T, ymin=NULL, ymax=NULL)
+plot_mean_curve(output = model_output, original = T, xlab = 'age', ylab = 'shannon', ymin=0, ymax=7.6)
 ```
 
 ## plot_fpc_curve(): 

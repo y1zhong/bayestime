@@ -1,7 +1,7 @@
 #' S3 class sfpca model with number of pc, knot, sampling data from rstan,
 #' log_liklihood, and leave-one-out cross-validation (LOO) information criterion
 sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
-                       sa=NULL, log_lik=NULL, looic=NULL){
+                       sa=NULL, log_lik=NULL, looic=NULL, basis=NULL){
   sfpca_model <- list(
     Nsamples = Nsamples,
     Nchains = Nchains,
@@ -9,7 +9,8 @@ sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
     knot = knot,
     sa = sa,
     log_lik = log_lik,
-    looic = looic
+    looic = looic,
+    basis = basis
   )
 
   ## Set the name for the class
@@ -34,7 +35,8 @@ sfpcaClass <- function(Nsamples = NULL, Nchains = NULL, pc=NULL, knot=NULL,
 #' @useDynLib BayesTime, .registration = TRUE
 #' @export
 
-stan_fit <- function(sfpca_data, Nsamples, Nchains, Ncores=NULL, PC_range, nknot_range){
+stan_fit <- function(sfpca_data, Nsamples, Nchains, Ncores=NULL,
+                     PC_range, nknot_range){
   stan_results <- list()
   i <- 0
   for (k in PC_range) {
@@ -46,6 +48,7 @@ stan_fit <- function(sfpca_data, Nsamples, Nchains, Ncores=NULL, PC_range, nknot
       print(paste('index i is:', i, 'number of PC:', k, 'number of knots:', d))
       results_basis <- basis_setup_sparse(da_list = sfpca_data,
                                           nknots = d, orth = TRUE)
+      sfpca$basis <- results_basis
       pca_data <- list(N = sfpca_data$num_subjects,
                        K = k,
                        Q = d + 4,

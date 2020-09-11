@@ -131,6 +131,11 @@ plot_mean_curve(output = model_output, original = T, ymin=NULL, ymax=NULL)
 plot_fpc_curve(output = model_output, original = F)
 ```
 
+## plot_fpc_on_mean_curve(): 
+```{r}
+plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = F)
+```
+
 ## plot_fpc_group_mean():
 ```{r}
 plot_fpc_group_mean(model_output, pc_idx = 1, original = F, 'delivery')

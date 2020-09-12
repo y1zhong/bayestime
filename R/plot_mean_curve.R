@@ -42,6 +42,8 @@ plot_mean_curve <- function(output, original = FALSE,
   if (is.null(xlab)) xlab = 'time'
   if (is.null(ylab)) ylab = 'response'
 
+  if (is.null(xlab)) xlab = 'time'
+  if (is.null(ylab)) ylab = 'response'
   plot(time_cont * (max(time) - min(time)) + min(time),
        Mu_functions * sigma_y + mu_y,
        ylim = c(ymin, ymax),

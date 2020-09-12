@@ -8,6 +8,10 @@
 #' @importFrom dplyr group_by
 #' @importFrom dplyr row_number
 #' @importFrom dplyr summarise
+<<<<<<< HEAD
+=======
+#' @importFrom magrittr sortLvlsByVar.fnc
+>>>>>>> ed84eb45ed164aa46b92acfe495801b47e672593
 #' @import ggpubr
 #' @import rstatix
 #' @export

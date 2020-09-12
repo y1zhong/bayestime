@@ -124,27 +124,30 @@ BayesTime::plot_residual() takes the output from output_results() and generates 
 ## plot_mean_curve(): ***
 ```{r, fig.height = 4, fig.width=6}
 plot_mean_curve(output = model_output, original = T, xlab = 'age', ylab = 'shannon', ymin=0, ymax=7.6)
+plot_mean_curve(output = model_output, original = F, xlab = 'age', ylab = 'shannon')
 ```
 
 ## plot_fpc_curve(): 
 ```{r}
-plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), ymin = -3, ymax = 5)
+plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), original = T, ymin = -3, ymax = 5)
 ```
 
 ## plot_fpc_on_mean_curve(): 
 ```{r}
 plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T)
+plot_fpc_on_mean_curve(output = model_output, pc_idx = 2, original = F)
 ```
 
 ## plot_fpc_group_mean():
 ```{r}
-plot_fpc_group_mean(model_output, pc_idx = 1, original = F, 'delivery')
+plot_fpc_group_mean(model_output, pc_idx = 1, original = T, 'delivery')
 ```
 
 ## plot_fpc_boxplot(): Generate boxplot for fpc score by group
 BayesTime::plot_fpc_boxplot() generates the boxplot of fpc scores from sfpca model and compare them by group. This function takes the output list from output_results() and the vector of variables that are invariant with time.
 ```{r}
-plot_fpc_boxplot(output = model_output, pc_idx = 2, group_name = 'diet_3')
+plot_fpc_boxplot(output = model_output, pc_idx = 1, group_name = 'diet_3',
+                 testing_type = 'parametric', pairwise_testing = T)
 ```
 
 

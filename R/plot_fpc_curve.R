@@ -31,8 +31,8 @@ plot_fpc_curve <- function(output, pc_idx, original=FALSE,
 
   sigma_y <- sd(response)
   mu_y <- mean(response)
-  if (is.null(ymin)) ymin <- floor(min((FPC_mean * sigma_y))) - 0.5
-  if (is.null(ymax)) ymax <- ceiling(max((FPC_mean * sigma_y))) + 0.5
+  if (is.null(ymin)) ymin <- floor(min((FPC_mean * sigma_y + mu_y))) - 0.5
+  if (is.null(ymax)) ymax <- ceiling(max((FPC_mean * sigma_y + mu_y))) + 0.5
   if (is.null(xlab)) xlab = 'time'
   if (is.null(ylab)) ylab = 'response'
 

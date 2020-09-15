@@ -67,13 +67,27 @@ plot_fpc_on_mean_curve <- function(output, pc_idx,
   }
   plot_melt <- reshape::melt(data = plot_data, id.vars = c("time"),
                     measure.vars = colnames(plot_data)[-1])
+  plot_melt$type <- factor(ifelse(plot_melt$variable != 'response', 'pcs', 'response'),
+                           levels = c('response', 'pcs'))
   print(ggplot() +
-      geom_line(data=plot_melt, aes(x = time, y = value, color = variable)) +
-      theme_classic() +
-      labs(title= paste(paste('PC', k, sep=' '), ' (',
-                        prop_var_avg[k], ' )', sep=''),
-           x = x_lab, y = y_lab))
-  return(plot_data)
+          geom_line(data=plot_melt, aes(x = time, y = value,
+                                        color = variable,
+                                        linetype = type), lwd = 1) +
+          guides(linetype=F) +
+          theme_classic() +
+          theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+                axis.text.x = element_text(size = 10, face = "bold"),
+                axis.text.y = element_text(size = 10, face = "bold"),
+                axis.title.x = element_text(size = 12, face = "bold"),
+                axis.title.y = element_text(size = 12, face = "bold")) +
+          scale_color_manual(values = c(response="black",
+                                        pc_plus="orange",
+                                        pc_minus="blue" )) +
+          labs(title= paste(paste('PC', k, sep=' '), ' (',
+                            prop_var_avg[k], ' )', sep=''),
+               colour = 'curves',
+               x = x_lab, y = y_lab))
+  return(results <-  list('data' = plot_data))
   # plot(time_cont * (max(time) - min(time)) + min(time),
   #       Mu_functions * sigma_y + mu_y,
   #      type = "l", ylim = c(ymin, ymax), lwd = 2,col = 1,

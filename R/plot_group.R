@@ -8,8 +8,10 @@
 #' @param variable_name One column name of interested variable from dataset
 #' @import ggplot2
 #' @export
-plot_group <- function(data, time_name, response_name, unique_subject_id, variable_name){
-  group <- data[, c(time_name, response_name, unique_subject_id, variable_name)]
+plot_group <- function(data, time_name, response_name,
+                       unique_subject_id, variable_name){
+  group <- data[, c(time_name, response_name,
+                    unique_subject_id, variable_name)]
   group[, variable_name] <- as.factor(group[, variable_name])
  # for(i in 1:length(variable_name)){
   group <- group[which(group[,variable_name] != 'Missing: Not provided'), ]
@@ -20,8 +22,10 @@ plot_group <- function(data, time_name, response_name, unique_subject_id, variab
                           color = group[, variable_name])) +
           labs(color = variable_name) +
           theme_bw() +
-          theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-                panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+          theme(panel.border = element_blank(),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                axis.line = element_line(colour = "black"))  +
           geom_line(alpha=0.2) +
           geom_smooth(se = F, size = 2, aes(group = group[, variable_name]),
                       level=0.95) +

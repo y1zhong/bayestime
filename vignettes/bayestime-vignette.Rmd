@@ -128,26 +128,28 @@ BayesTime::plot_residual() takes the output from output_results() and generates 
 ## plot_mean_curve(): ***
 ```{r, fig.height = 4, fig.width=6}
 #tiff('~/Dropbox/lab/SFPCA/meancurve_plot.tiff')
-plot_mean_curve(output = model_output, original = T, xlab = 'age', ylab = 'shannon', ymin=0, ymax=7.6)
+plot_mean_curve(output = model_output, original = T, x_lab = 'age', y_lab = 'shannon', ymin=0, ymax=7.6)
 #dev.off()
-plot_mean_curve(output = model_output, original = F, xlab = 'age', ylab = 'shannon')
+plot_mean_curve(output = model_output, original = F, x_lab = 'age', y_lab = 'shannon')
 ```
 
 ## plot_fpc_curve(): 
 ```{r, fig.height = 4, fig.width=6}
-plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), original = T)
+d <- plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), original = T)
+d <- plot_fpc_curve(output = model_output, pc_idx = c(2,3), original = F, x_tick = c(2,5))
 ```
 
 ## plot_fpc_on_mean_curve(): 
 ```{r, fig.height = 4, fig.width=6}
-fpc_on_mean_curve_data <- plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T, sd = F)
+d <- plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T, sd = F)
      
-fpc_on_mean_curve_data2 <- plot_fpc_on_mean_curve(output = model_output, pc_idx = 2, original = F, sd = T)
+d <- fpc_on_mean_curve_data2 <- plot_fpc_on_mean_curve(output = model_output, pc_idx = 2, original = F, sd = T)
 ```
 
 ## plot_fpc_group_mean():
 ```{r, fig.height = 4, fig.width=6}
-plot_fpc_group_mean(model_output, pc_idx = 1, original = T, 'delivery')
+d <- plot_fpc_group_mean(output = model_output, pc_idx = 1, original = T, group_name = 'delivery')
+d <- plot_fpc_group_mean(output = model_output, pc_idx = 2, original = F, group_name = 'diet_3')
 ```
 
 ## plot_fpc_boxplot(): Generate boxplot for fpc score by group

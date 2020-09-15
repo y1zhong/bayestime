@@ -5,8 +5,8 @@
 #' @param group_name One column name of interested group variables in data
 #' @param original The option to plot with original or transformed
 #' @param x_lab: Manually set x axis title
-#' @param ylab: Manually set y axis title
-#' @param y_min The minimum of y lab
+#' @param y_lab: Manually set y axis title
+#' @param ymin The minimum of y lab
 #' @param ymax The maximum of y lab
 #' @return The data used for plot
 #' @import reshape

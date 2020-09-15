@@ -7,8 +7,8 @@
 plot_mean_curve(
   output,
   original = FALSE,
-  xlab = NULL,
-  ylab = NULL,
+  x_lab = NULL,
+  y_lab = NULL,
   ymin = NULL,
   ymax = NULL
 )

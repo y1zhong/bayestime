@@ -8,10 +8,11 @@ plot_fpc_curve(
   output,
   pc_idx,
   original = FALSE,
-  xlab = NULL,
-  ylab = NULL,
+  x_lab = NULL,
+  y_lab = NULL,
   ymin = NULL,
-  ymax = NULL
+  ymax = NULL,
+  x_tick = NULL
 )
 }
 \arguments{

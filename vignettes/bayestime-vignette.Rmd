@@ -139,7 +139,8 @@ plot_fpc_curve(output = model_output, pc_idx = c(1,2,3), original = T)
 
 ## plot_fpc_on_mean_curve(): 
 ```{r, fig.height = 4, fig.width=6}
-plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T)
+fpc_on_mean_curve_data <- plot_fpc_on_mean_curve(output = model_output, pc_idx = 1, original = T)
+     
 plot_fpc_on_mean_curve(output = model_output, pc_idx = 2, original = F)
 ```
 

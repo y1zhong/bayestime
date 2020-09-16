@@ -2,10 +2,11 @@
 #'
 #' @param output The model output list from output_results() function
 #' @param pc_idx The indices of pc to plot
-#' @param x_lab: Manually set x axis title
-#' @param y_lab: Manually set y axis title
+#' @param x_lab Manually set x axis title
+#' @param y_lab Manually set y axis title
 #' @param ymin The minimum of y lab
 #' @param ymax The maximum of y lab
+#' @param x_tick Manually set x tick
 #' @export
 plot_fpc_curve <- function(output, pc_idx, original=FALSE,
                            x_lab = NULL, y_lab = NULL,
@@ -47,26 +48,28 @@ plot_fpc_curve <- function(output, pc_idx, original=FALSE,
   pc_plot <- unlist(lapply(pc_idx, function(x) paste('PC', x, sep = '')))
   plot_melt <- reshape::melt(plot_data, 'time', pc_plot)
   p <- ggplot() +
-          geom_line(data=plot_melt, aes(x = time, y = value,
-                                        colour = variable,
-                                        linetype = variable), lwd = 1) +
-          guides(linetype=F) +
-          ylim(ymin, ymax) +
-          theme_classic() +
-          theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
-                axis.text.x = element_text(size = 10, face = "bold"),
-                axis.text.y = element_text(size = 10, face = "bold"),
-                axis.title.x = element_text(size = 12, face = "bold"),
-                axis.title.y = element_text(size = 12, face = "bold")) +
-          labs(colour=pc_plot) +
-          labs(title= 'FPC Curves',
-               x = x_lab, y = y_lab)
+    geom_line(data = plot_melt, aes(x = time, y = value, colour = variable,
+                                    linetype = variable),
+              lwd = 1) +
+    guides(linetype=F) +
+    ylim(ymin, ymax) +
+    labs(colour = 'curves') +
+    labs(title = 'FPC Curves',
+         x = x_lab, y = y_lab) +
+    theme_classic() +
+    theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+          axis.text.x = element_text(size = 10, face = "bold"),
+          axis.text.y = element_text(size = 10, face = "bold"),
+          axis.title.x = element_text(size = 12, face = "bold"),
+          axis.title.y = element_text(size = 12, face = "bold"))
+
   if (!is.null(x_tick)) {
     p <- p + scale_x_continuous(breaks = x_tick)
   }
   print(p)
 
-  return(results <- list('data' = plot_data))
+  return(results <- list('data' = plot_data,
+                         'plot' = p))
   # plot(time_cont * (max(time) - min(time)) + min(time),
   #      FPC_mean[, 1] * sigma_y + mu_y, type="n", ylim = c(ymin, ymax),
   #      xlab = x_lab, ylab=y_lab, font.lab = 2, cex.lab = 1.2)

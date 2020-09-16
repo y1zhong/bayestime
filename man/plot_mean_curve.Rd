@@ -26,6 +26,9 @@ plot_mean_curve(
 
 \item{ymax:}{Manually set maximum of y lab}
 }
+\value{
+A list with plot
+}
 \description{
 A function to plot mean curces
 }

@@ -8,7 +8,7 @@
 #' @param y_lab: Manually set y axis title
 #' @param ymin The minimum of y lab
 #' @param ymax The maximum of y lab
-#' @return The data used for plot
+#' @return A list with the plot and the data used for plot
 #' @import reshape
 #' @export
 plot_fpc_group_mean <- function(output, pc_idx, original = FALSE, group_name,
@@ -67,24 +67,27 @@ plot_fpc_group_mean <- function(output, pc_idx, original = FALSE, group_name,
   }
 
   plot_melt <- reshape::melt(plot_data, 'time', classes)
-  print(ggplot() +
-          geom_line(data=plot_melt, aes(x = time, y = value,
-                                        colour = variable,
-                                        linetype = variable), lwd = 1) +
-          guides(linetype=F) +
-          ylim(ymin, ymax) +
-          theme_classic() +
-          theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
-                axis.text.x = element_text(size = 10, face = "bold"),
-                axis.text.y = element_text(size = 10, face = "bold"),
-                axis.title.x = element_text(size = 12, face = "bold"),
-                axis.title.y = element_text(size = 12, face = "bold")) +
-          labs(colour=group_name) +
-          labs(title= paste(paste('PC', k, sep = ' '),
-                            ' (', prop_var_avg[k], ' )', sep=''),
-               x = x_lab, y = y_lab))
+  p <- ggplot() +
+    geom_line(data=plot_melt, aes(x = time, y = value,
+                                  colour = variable,
+                                  linetype = variable), lwd = 1) +
+    guides(linetype = F) +
+    ylim(ymin, ymax) +
+    labs(colour=group_name) +
+    labs(title= paste(paste('PC', k, sep = ' '),
+                      ' (', prop_var_avg[k], ' )', sep=''),
+         x = x_lab, y = y_lab) +
+    theme_classic() +
+    theme(plot.title = element_text(hjust = 0.5, size = 15,
+                                    face = "bold"),
+          axis.text.x = element_text(size = 10, face = "bold"),
+          axis.text.y = element_text(size = 10, face = "bold"),
+          axis.title.x = element_text(size = 12, face = "bold"),
+          axis.title.y = element_text(size = 12, face = "bold"))
 
-  return(results <- list('data' = plot_data))
+  print(p)
+  return(results <- list('data' = plot_data,
+                         'plot' = p))
 
   # plot(time_cont * max(time), Mu_functions * sigma_y + mu_y,
   #      type="n", lwd = 2,

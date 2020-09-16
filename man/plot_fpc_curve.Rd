@@ -20,13 +20,15 @@ plot_fpc_curve(
 
 \item{pc_idx}{The indices of pc to plot}
 
+\item{x_lab}{Manually set x axis title}
+
+\item{y_lab}{Manually set y axis title}
+
 \item{ymin}{The minimum of y lab}
 
 \item{ymax}{The maximum of y lab}
 
-\item{xlab:}{Manually set x axis title}
-
-\item{ylab:}{Manually set y axis title}
+\item{x_tick}{Manually set x tick}
 }
 \description{
 A function to plot fpc curves

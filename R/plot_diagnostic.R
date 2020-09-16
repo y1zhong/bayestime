@@ -41,11 +41,11 @@ plot_k_diagnostic <- function(sfpca_data, model){
 #' @param model: The optimal sfpca model
 #' @param x_lab: Manually set x axis title
 #' @param y_lab: Manually set y axis title
+#' @return A list with the plot and the data used for plot
 #' @import ggplot2
 #' @import rstan
 #' @import bayesplot
 #' @export
-
 plot_posterior_diagnostic <- function(sfpca_data, model,
                                       x_lab = NULL, y_lab = NULL){
   sa <- model$sa
@@ -68,13 +68,15 @@ plot_posterior_diagnostic <- function(sfpca_data, model,
   d <- model$knot
   if (is.null(x_lab)) x_lab = 'standardized response'
   #if (is.null(y_lab)) y_lab = ''
-  plot_data <- data.frame(sfpca_data$data$response, Ynew_transform)
-  print(bayesplot::ppc_dens_overlay(sfpca_data$data$response, Ynew_transform) +
-    ggplot2::ggtitle('Posterior Predictive Checking')) +
+  #plot_data <- data.frame(sfpca_data$data$response, Ynew_transform)
+  p <- bayesplot::ppc_dens_overlay(sfpca_data$data$response, Ynew_transform) +
+    ggplot2::ggtitle('Posterior Predictive Checking') +
     theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
           axis.text.x = element_text(size = 10, face = "bold"),
           axis.text.y = element_text(size = 10, face = "bold"),
           axis.title.x = element_text(size = 12, face = "bold"),
-          axis.title.y = element_text(size = 12, face = "bold"))+
+          axis.title.y = element_text(size = 12, face = "bold")) +
     labs(x = x_lab)
+  print(p)
+  return(results <- list('plot' = p))
 }

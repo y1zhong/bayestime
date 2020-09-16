@@ -56,16 +56,12 @@ plot_fpc_group_mean <- function(output, pc_idx, original = FALSE, group_name,
   scores_mu_g <- unlist(lapply(1:groups, function(x){
     mean(data_temp[data_temp[, group_name] == classes[x], fpcs])
     }))
-<<<<<<< HEAD
+
   plot_data <- data.frame(time_cont * (max(time) - min(time)) + min(time))
-=======
-  plot_data <- data.frame(time_cont * max(time))
->>>>>>> 66b9db07e2aa6e71ede3c819cdc5be93f9fbb38e
   colnames(plot_data) <- 'time'
   for (j in 1:groups){
       plot_data[, 1 + j] <- (Mu_functions + FPC_mean[, k] * scores_mu_g[j]) *
         sigma_y + mu_y
-<<<<<<< HEAD
       plot_data[, 1 + j] <- as.vector(plot_data[, 1 + j])
       colnames(plot_data)[1 + j] <- classes[j]
   }
@@ -90,19 +86,6 @@ plot_fpc_group_mean <- function(output, pc_idx, original = FALSE, group_name,
 
   return(results <- list('data' = plot_data))
 
-=======
-      colnames(plot_data)[1 + j] <- classes[j]
-  }
-
-  plot_melt <- reshape::melt(plot_data, time, classes)
-  print(ggplot() +
-          geom_line(data=plot_melt, aes(x = time, y = value, color = variable)) +
-          theme_classic() +
-          labs(title= paste(paste('PC', k, sep = ' '),
-                            ' (', prop_var_avg[k], ' )', sep=''),
-               x = x_lab, y = y_lab))
-  return(plot_data)
->>>>>>> 66b9db07e2aa6e71ede3c819cdc5be93f9fbb38e
   # plot(time_cont * max(time), Mu_functions * sigma_y + mu_y,
   #      type="n", lwd = 2,
   #      xlab='Time', ylab='FPC Scores',

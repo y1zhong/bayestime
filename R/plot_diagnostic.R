@@ -39,6 +39,8 @@ plot_k_diagnostic <- function(sfpca_data, model){
 #'
 #' @param sfpca_data: The prepared data from prepare_data() function (list)
 #' @param model: The optimal sfpca model
+#' @param x_lab: Manually set x axis title
+#' @param y_lab: Manually set y axis title
 #' @import ggplot2
 #' @import rstan
 #' @import bayesplot
@@ -66,6 +68,7 @@ plot_posterior_diagnostic <- function(sfpca_data, model,
   d <- model$knot
   if (is.null(x_lab)) x_lab = 'standardized response'
   #if (is.null(y_lab)) y_lab = ''
+  plot_data <- data.frame(sfpca_data$data$response, Ynew_transform)
   print(bayesplot::ppc_dens_overlay(sfpca_data$data$response, Ynew_transform) +
     ggplot2::ggtitle('Posterior Predictive Checking')) +
     theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),

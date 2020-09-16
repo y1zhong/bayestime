@@ -2,8 +2,8 @@
 #'
 #' @param output The model output list from output_results() function
 #' @param pc_idx The indices of pc to plot
-#' @param xlab: Manually set x axis title
-#' @param ylab: Manually set y axis title
+#' @param x_lab: Manually set x axis title
+#' @param y_lab: Manually set y axis title
 #' @param ymin The minimum of y lab
 #' @param ymax The maximum of y lab
 #' @export

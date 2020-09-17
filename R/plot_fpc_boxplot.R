@@ -22,7 +22,7 @@
 #' @export
 plot_fpc_boxplot <- function(output, pc_idx, group_name,
                              x_lab = NULL, y_lab = NULL, p_title = NULL,
-                             ymin = NULL, ymax = NULL,
+                            # ymin = NULL, ymax = NULL,
                              testing_type = c('parametric', 'non-parametric'),
                              pairwise_testing = FALSE,
                              pval_show_all = FALSE,
@@ -117,8 +117,8 @@ plot_fpc_boxplot <- function(output, pc_idx, group_name,
 
   if (is.null(x_lab)) x_lab = group_name
   if (is.null(y_lab)) y_lab = paste(pc_name, 'scores')
-  if (is.null(ymin)) ymin <- min(df_tt[, 2])
-  if (is.null(ymax)) ymax <- max(df_tt[, 2])
+  # if (is.null(ymin)) ymin <- min(df_tt[, 2])
+  # if (is.null(ymax)) ymax <- max(df_tt[, 2])
   var_tp <- group_name
   colnames(df_tt) <- c('ID', pc_name, var_tp)
   p <- ggboxplot(df_tt, x = var_tp, y = pc_name,

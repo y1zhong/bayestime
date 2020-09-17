@@ -35,7 +35,7 @@ head(ECAM)
 colnames(ECAM)
 unique_subject_id <- 'studyid'
 time <- 'month_of_life'
-response <- 'shannon'
+response <- 'shannon_mean'
 ```
 
 # Workflow
@@ -71,6 +71,7 @@ BayesTime::prepare_data() transforms a dataframe object to a list for stan model
 dat <- prepare_data(data = ECAM, unique_subject_id = unique_subject_id,
                     time_name = time, response_name = response, 
                     transform_y = 'standardize', scale_time = T, average = T)
+
 summary(dat)
 d<- dat$data
 ```

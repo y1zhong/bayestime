@@ -7,7 +7,9 @@
 #' @param transform_y the ways of transforming the response variable: standardize/center/NULL
 #' @param scale_time the option of whether or not to scale the time variable to be within [0, 1] (True/False)
 #' @param group_name the column name of group id, set to NA if no input
+#' @param average the option to average duplicate response values
 #' @return A list containing the prepared data for sfpca model
+#' @importFrom dplyr distinct
 #' @export
 #' @examples
 #' data("ECAM")

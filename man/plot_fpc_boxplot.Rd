@@ -15,6 +15,8 @@ plot_fpc_boxplot(
   testing_type = c("parametric", "non-parametric"),
   pairwise_testing = FALSE,
   global_testing = FALSE,
+  p_adjust_meth = c("none", "holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+    "fdr"),
   group_order = NULL
 )
 }

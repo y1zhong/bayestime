@@ -24,6 +24,9 @@ plot_fpc_boxplot <- function(output, pc_idx, group_name,
                              testing_type = c('parametric', 'non-parametric'),
                              pairwise_testing = FALSE,
                              global_testing = FALSE,
+                             p_adjust_meth = c("none", "holm", "hochberg",
+                                                 "hommel", "bonferroni",
+                                                 "BH", "BY", "fdr"),
                              group_order = NULL){
   df <- output$df
   pc_name <- paste('fpc', pc_idx, sep = '')
@@ -57,7 +60,8 @@ plot_fpc_boxplot <- function(output, pc_idx, group_name,
       df_test <- df_tt[, -1]
       stat_test <- df_test %>%
         rstatix::pairwise_wilcox_test(
-          fpc ~ var_temp
+          fpc ~ var_temp,
+          p.adjust.method = p_adjust_meth
           )
       stat_test <- stat_test[stat_test$p <= 0.05, ]
       stat_test_g1 <- stat_test$group1
@@ -74,25 +78,40 @@ plot_fpc_boxplot <- function(output, pc_idx, group_name,
       df_test <- df_tt[, -1]
       stat_test <- df_test %>%
         rstatix::pairwise_t_test(
-          fpc ~ var_temp
+          fpc ~ var_temp,
+          p.adjust.method = p_adjust_meth
         )
-      stat_test <- stat_test[stat_test$p <= 0.05, ]
+      if (p_adjust_meth == 'none') {
+        stat_test <- stat_test[stat_test$p <= 0.05, ]
+      } else {
+        stat_test <- stat_test[stat_test$p.adj <= 0.05, ]
+      }
       stat_test_g1 <- stat_test$group1
       stat_test_g2 <- stat_test$group2
       stat_test_list <- mapply(c, stat_test_g1, stat_test_g2, SIMPLIFY = F)
-      p_pairwise <- stat_compare_means(comparisons = stat_test_list,
-                                       method = 't.test')
+
+      if (p_adjust_meth == 'none') {
+        p_pairwise <- stat_compare_means(comparisons = stat_test_list,
+                                         method = 't.test')
+      } else {
+        stat_test <- stat_test %>% add_xy_position(x = 'var_temp')
+
+        p_pairwise <- stat_pvalue_manual(stat_test, label = 'p.adj')
+      }
+
+      # p_pairwise <- stat_compare_means(comparisons = stat_test_list,
+      #                                  method = 't.test')
     }
   }
 
   if (is.null(x_lab)) x_lab = group_name
   if (is.null(y_lab)) y_lab = paste(pc_name, 'scores')
-  if (is.null(p_title)) p_title = 'FPC boxplot'
+
   var_tp <- group_name
   colnames(df_tt) <- c('ID', pc_name, var_tp)
   p <- ggboxplot(df_tt, x = var_tp, y = pc_name,
                  color = var_tp, add = "jitter",
-                 xlab = x_lab, ylab = y_lab, title = p_title,) +
+                 xlab = x_lab, ylab = y_lab) +
     theme(plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
           axis.text.x = element_text(size = 10, face = "bold"),
           axis.text.y = element_text(size = 10, face = "bold"),
@@ -100,8 +119,9 @@ plot_fpc_boxplot <- function(output, pc_idx, group_name,
           axis.title.y = element_text(size = 12, face = "bold"))
   if (global_testing == TRUE) p <- p + p_global
   if (pairwise_testing == TRUE) p <- p+ p_pairwise
+  if (!is.null(p_title)) p <- p + ggtitle(p_title)
   p <- ggpar(p, legend = 'none')
   print(p)
   return(results <- list('data' = df_tt,
-                         'plot' = p))
+                         'figure' = p))
 }

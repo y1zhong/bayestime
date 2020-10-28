@@ -62,9 +62,9 @@ prepare_data = function(data, unique_subject_id, time_name, response_name,
   N <- length(unique(data$ID)) # total number of unique subjects
 
   #convert time and response to numeric
-  # data[, c(time_name, response_name)] <- lapply(data[, c(time_name,
-  #                                                        response_name)],
-  #                                               function(x) as.numeric(as.character(x)))
+  data[, c(time_name, response_name)] <- lapply(data[, c(time_name,
+                                                         response_name)],
+                                                function(x) as.numeric(as.character(x)))
 
   # convert group id to be numeric
   if (!is.null(group_name)) {
